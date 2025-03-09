@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courbe de Bien-être</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-semibold text-gray-800 mb-8 text-center">Évolution du Bien-être</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <canvas id="wellbeingChart"></canvas>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Sommeil -->
+            <div class="bg-blue-50 rounded-lg p-4">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-bed text-blue-500 text-xl mr-2"></i>
+                    <h3 class="text-lg font-medium text-gray-800">Sommeil</h3>
+                </div>
+                <p class="text-gray-600">Un sommeil de qualité améliore progressivement le bien-être, tandis qu'un manque de sommeil le diminue.</p>
+            </div>
+
+            <!-- Alcool -->
+            <div class="bg-purple-50 rounded-lg p-4">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-wine-glass-alt text-purple-500 text-xl mr-2"></i>
+                    <h3 class="text-lg font-medium text-gray-800">Alcool</h3>
+                </div>
+                <p class="text-gray-600">Effets positifs temporaires, mais impacts négatifs sur le long terme en cas de consommation excessive.</p>
+            </div>
+
+            <!-- Exercice -->
+            <div class="bg-green-50 rounded-lg p-4">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-running text-green-500 text-xl mr-2"></i>
+                    <h3 class="text-lg font-medium text-gray-800">Exercice</h3>
+                </div>
+                <p class="text-gray-600">L'activité physique régulière améliore durablement le bien-être général.</p>
+            </div>
+
+            <!-- Cocaïne -->
+            <div class="bg-red-50 rounded-lg p-4">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-xl mr-2"></i>
+                    <h3 class="text-lg font-medium text-gray-800">Cocaïne</h3>
+                </div>
+                <p class="text-gray-600">Pics temporaires suivis de chutes brutales, effets très négatifs sur le long terme.</p>
+            </div>
+
+            <!-- Cannabis -->
+            <div class="bg-yellow-50 rounded-lg p-4">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-cannabis text-yellow-600 text-xl mr-2"></i>
+                    <h3 class="text-lg font-medium text-gray-800">Cannabis</h3>
+                </div>
+                <p class="text-gray-600">Effets positifs temporaires, mais peut diminuer le bien-être sur le long terme.</p>
+            </div>
+
+            <!-- Repas -->
+            <div class="bg-orange-50 rounded-lg p-4">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-utensils text-orange-500 text-xl mr-2"></i>
+                    <h3 class="text-lg font-medium text-gray-800">Repas</h3>
+                </div>
+                <p class="text-gray-600">Une alimentation équilibrée favorise un bien-être durable.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('wellbeingChart').getContext('2d');
+        
+        // Données simulées sur 30 jours
+        const days = Array.from({length: 30}, (_, i) => `Jour ${i + 1}`);
+        const baseWellbeing = Array.from({length: 30}, () => 70); // Niveau de base
+
+        // Simulation des impacts des différents facteurs
+        const impacts = {
+            sleep: [0, 5, 8, 10, 12, 15, 18, 20, 22, 25], // Impact progressif positif
+            alcohol: [-5, -8, -10, -15, -20, -25, -30], // Impact négatif croissant
+            exercise: [5, 8, 10, 12, 15, 18, 20], // Impact positif progressif
+            cocaine: [-40, -30, -25, -20, -15, -10], // Chute brutale
+            cannabis: [-10, -15, -20, -25, -30], // Impact négatif modéré
+            meals: [3, 5, 8, 10, 12, 15] // Impact positif modéré
+        };
+
+        // Application des impacts sur la courbe de base
+        const wellbeingData = baseWellbeing.map((base, index) => {
+            let value = base;
+            
+            // Simulation des événements
+            if (index % 7 === 0) value += impacts.sleep[0]; // Bon sommeil
+            if (index % 5 === 0) value += impacts.exercise[0]; // Exercice
+            if (index % 10 === 0) value += impacts.alcohol[0]; // Consommation d'alcool
+            if (index === 15) value += impacts.cocaine[0]; // Episode de cocaïne
+            if (index % 8 === 0) value += impacts.cannabis[0]; // Consommation de cannabis
+            if (index % 3 === 0) value += impacts.meals[0]; // Repas équilibré
+
+            return Math.max(0, Math.min(100, value)); // Maintenir les valeurs entre 0 et 100
+        });
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: days,
+                datasets: [{
+                    label: 'Niveau de bien-être',
+                    data: wellbeingData,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Niveau de bien-être (%)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Temps'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Évolution du bien-être en fonction des choix de vie',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
